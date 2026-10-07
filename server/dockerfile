@@ -11,6 +11,7 @@ EXPOSE 3000
 CMD ["yarn", "dev"]
 
 FROM node:24-alpine AS prod
+LABEL org.opencontainers.image.source=https://github.com/chazelm-balthazar/my-favorite-places
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json yarn.lock ./
