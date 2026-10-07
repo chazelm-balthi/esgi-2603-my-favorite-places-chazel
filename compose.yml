@@ -1,28 +1,36 @@
 services:
   db:
     image: postgres:17-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: supersecret
       POSTGRES_DB: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   server:
     build: ./server
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       DB_HOST: db
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   client:
     build: ./client
+    restart: unless-stopped
     ports:
-      - "5173:5173"
-    environment:
-      API_URL: http://server:3000
+      - "8080:80"
     depends_on:
       - server
 
